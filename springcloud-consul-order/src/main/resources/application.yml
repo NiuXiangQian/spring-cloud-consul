@@ -1,0 +1,14 @@
+###eureka 服务端口号
+server:
+  port: 9000
+spring:
+  application:
+    name: consul-order
+  cloud:
+    consul:
+      host: 192.168.88.146
+      port: 8500
+      discovery:
+        hostname: 127.0.0.1
+        heartbeat:
+          enabled: true

@@ -1,0 +1,16 @@
+###eureka 服务端口号
+server:
+  port: 8000
+spring:
+  application:
+    name: consul-member
+  ####consul注册中心地址
+  cloud:
+    consul:
+      host: 192.168.88.146
+      port: 8500
+      discovery:
+        hostname: 127.0.0.1
+        #开启心跳检测 不然会出现节点不健康
+        heartbeat:
+          enabled: true
