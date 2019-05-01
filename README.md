@@ -1,0 +1,1 @@
+spring整合consul做注册中心 需要在windows或者linux安装consul
