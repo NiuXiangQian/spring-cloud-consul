@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description: consul会员控制器
@@ -24,25 +25,38 @@ public class ConsulOrderController {
     @Autowired
     private RestTemplate restTemplate;
 
+
     @Autowired
     private DiscoveryClient discoveryClient;
 
+    private AtomicInteger requestCount = new AtomicInteger(1);
+
     @RequestMapping("/getOrder")
     public String getOrder() {
-        String forObject = restTemplate.getForObject("http://consul-member/getMember", String.class);
-        System.out.println("forObject = " + forObject);
-        //获取服务器信息
-        List<ServiceInstance> instances = discoveryClient.getInstances("consul-member");
-        for (ServiceInstance instance : instances) {
-            System.out.println("instance.getHost() = " + instance.getHost());
-            System.out.println("instance.getScheme() = " + instance.getScheme());
-            System.out.println("instance.getUri() = " + instance.getUri());
-            System.out.println("instance.getServiceId() = " + instance.getServiceId());
-            System.out.println("instance.getPort() = " + instance.getPort());
-            System.out.println("instance.getMetadata() = " + instance.getMetadata());
-        }
-
+        //String forObject = restTemplate.getForObject("http://consul-member/getMember", String.class);
+        String url = getUrl("consul-member") + "/getMember";
+        System.out.println("url = " + url);
+        String forObject = restTemplate.getForObject(url, String.class);
         return forObject;
+    }
+
+    /**
+     * @Description: 获取请求的url
+     * @Author: admin
+     * @Param: []
+     * @Return java.lang.String
+     **/
+    public String getUrl(String serverId) {
+
+        List<ServiceInstance> instances = discoveryClient.getInstances(serverId);
+        if (instances == null || instances.isEmpty()) {
+            return null;
+        }
+        //本地负载均衡算法  请求总数取模服务器数量
+        int index = requestCount.incrementAndGet() % instances.size();
+
+        return instances.get(index).getUri().toString();
+
     }
 
 
